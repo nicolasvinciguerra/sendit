@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils import  timezone
+from django.utils import timezone
 
 
 class Direccion(models.Model):
@@ -59,6 +59,7 @@ class Estado_Envio ():
     ENTREGADO = 'ENTREGADO'
 
 class Estado_Paquete ():
+    GENERADO = 'GENERADO'
     EN_VIAJE = 'VIAJE'
     NO_ENTREGADO = 'NO_ENTREGADO'
     ENTREGADO = 'ENTREGADO'
@@ -67,7 +68,7 @@ class Estado_Paquete ():
 
 class Usuario(models.Model):
     nombre_usuario = models.CharField(max_length=60, unique=True)
-    mail = models.EmailField(unique=True)
+    mail = models.EmailField(unique=True, null=True)
     password = models.CharField(max_length=300)
     telefono = models.CharField(max_length=30, null=True)
     direccion = models.ForeignKey(Direccion, null=True)
@@ -77,11 +78,11 @@ class Repartidor(Usuario):
     nombre = models.CharField(max_length=60)
     apellido = models.CharField(max_length=60)
     fecha_Nacimiento = models.DateTimeField
-    sexo_choices = ((Sexo.HOMBRE, 'Hombre')(Sexo.MUJER, 'Mujer')(Sexo.OTRO, 'Otro'))
-    sexo = models.CharField(max_length=2, choices=sexo_choices)
+    sexo_choices = ((Sexo.HOMBRE, 'Hombre'),(Sexo.MUJER, 'Mujer'),(Sexo.OTRO, 'Otro'))
+    sexo = models.CharField(max_length=10, choices=sexo_choices)
     dni = models.CharField(max_length=15)
     vehiculo = models.ForeignKey(Vehiculo)
-    categoria_choices = ((Categoria.DELIVERY_COMIDA, 'Delivery Comida')(Categoria.DELIVERY_CHICO, 'Delivery Paqueteria Pequeña y Documentos')(Categoria.DELIVERY_MEDIANO, 'Delivery Paqueteria Mediana')(Categoria.DELIVERY_GRANDE, 'Delivery Grandes Objetos'))
+    categoria_choices = ((Categoria.DELIVERY_COMIDA, 'Delivery Comida'),(Categoria.DELIVERY_CHICO, 'Delivery Paqueteria Pequeña y Documentos'),(Categoria.DELIVERY_MEDIANO, 'Delivery Paqueteria Mediana'),(Categoria.DELIVERY_GRANDE, 'Delivery Grandes Objetos'))
     categoria = models.CharField(max_length= 10, choices=categoria_choices)
     estado_choices = ((Estado_Repartidor.INACTIVO, 'Inactivo'), (Estado_Repartidor.ACTIVO, 'Activo'), (Estado_Repartidor.OCUPADO, 'Ocupado'))
     estado = models.CharField(max_length=10, choices=estado_choices, default=Estado_Repartidor.INACTIVO)
@@ -90,30 +91,30 @@ class Repartidor(Usuario):
 class Persona(Usuario):
     nombre = models.CharField(max_length=60)
     apellido = models.CharField(max_length=60)
-    fecha_Nacimiento = models.DateTimeField
-    sexo_choices = ((Sexo.HOMBRE, 'Hombre')(Sexo.MUJER, 'Mujer')(Sexo.OTRO, 'Otro'))
-    sexo = models.CharField(max_length= 7, choices=sexo_choices, null=True)
-    dni = models.CharField(max_length=15)
+    fecha_Nacimiento = models.DateTimeField(null=True)
+    sexo_choices = ((Sexo.HOMBRE, 'Hombre'),(Sexo.MUJER, 'Mujer'),(Sexo.OTRO, 'Otro'))
+    sexo = models.CharField(max_length= 10, choices=sexo_choices, null=True)
+    dni = models.CharField(max_length=15, null=True)
 
 class Empresa(Usuario):
     razon_social = models.CharField(max_length=60)
-    cuit = models.CharField(max_length=60)
+    cuit = models.CharField(max_length=15)
 
 
-class Paquete(models.Mcodel):
-    fecha_hora_entrega = models.DateTimeField
-    destinatario = models.ForeignKey(Usuario)
+class Paquete(models.Model):
+    fecha_hora_entrega = models.DateTimeField(null=True)
+    destinatario = models.ForeignKey(Usuario, null=True)
     direccion = models.ForeignKey(Direccion)
-    precio = models.FloatField
-    estado_choices = ((Estado_Paquete.ENTREGADO, 'Entregado'), (Estado_Paquete.EN_VIAJE, 'En viaje'), (Estado_Paquete.NO_ENTREGADO, 'No entregado'))
-    estado = models.CharField(max_length=10, choices= estado_choices )
+    precio = models.FloatField(null=True)
+    estado_choices = ((Estado_Paquete.GENERADO, 'Generado'), (Estado_Paquete.ENTREGADO, 'Entregado'), (Estado_Paquete.EN_VIAJE, 'En viaje'), (Estado_Paquete.NO_ENTREGADO, 'No entregado'))
+    estado = models.CharField(max_length=10, choices=estado_choices, default=Estado_Paquete.GENERADO)
 
 
 class Envio(models.Model):
-    fecha_hora_Generado = models.DateTimeField(default= timezone.now())
-    fecha_hora_Entregado = models.DateTimeField(null=True)
+    fecha_hora_generado = models.DateTimeField(default= timezone.now)
+    fecha_hora_entregado = models.DateTimeField(null=True)
     estado_choices = ((Estado_Envio.GENERADO, 'Generado'),(Estado_Envio.CANCELADO, 'Cancelado'), (Estado_Envio.EN_ESPERA, 'En espera'), (Estado_Envio.CONFIRMADO, 'Confirmado'), (Estado_Envio.EN_VIAJE, 'En viaje'), (Estado_Envio.ENTREGADO, 'Entregado'), (Estado_Envio.NO_ENTREGADO, 'No entregado') )
-    estado = models.CharField(max_length=10, choices= estado_choices )
+    estado = models.CharField(max_length=10, choices= estado_choices, default=Estado_Envio.GENERADO)
     repartidor = models.ForeignKey(Repartidor, related_name='repartidor_envio', null=True)
     remitente = models.ForeignKey(Usuario, related_name='remitente_envio', null= True)
     paquetes = models.ForeignKey(Paquete)
