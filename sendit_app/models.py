@@ -120,6 +120,7 @@ class Envio(models.Model):
     repartidor = models.ForeignKey(Repartidor, related_name='repartidor_envio', null=True)
     remitente = models.ForeignKey(Usuario, related_name='remitente_envio', null= True)
     categoria = models.CharField(max_length=10, choices=Repartidor.categoria_choices)
+    nro_tracking = models.CharField(max_length=10)
     plan = models.ForeignKey(Plan, null=True)
     envio = models.ManyToOneRel(Paquete)
     rastreo = models.ManyToOneRel(Rastreo)
@@ -127,6 +128,7 @@ class Envio(models.Model):
 
 
 class Paquete(models.Model):
+
     fecha_hora_entrega = models.DateTimeField(null=True)
     destinatario = models.ForeignKey(Usuario, null=True)
     direccion = models.ForeignKey(Direccion)
