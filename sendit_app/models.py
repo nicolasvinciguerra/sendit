@@ -3,7 +3,6 @@ from django.utils import timezone
 
 #Comentario MIO
 
-
 class Direccion(models.Model):
     calle = models.CharField(max_length=60)
     numero = models.IntegerField
