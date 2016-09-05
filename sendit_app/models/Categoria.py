@@ -1,3 +1,4 @@
+
 class Categoria():
     DELIVERY_COMIDA = 'COMIDA'
     DELIVERY_CHICO = 'CHICO'
