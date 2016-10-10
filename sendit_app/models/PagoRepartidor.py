@@ -3,7 +3,7 @@ from django.db import models
 from sendit_app.models import Repartidor
 
 
-class Pago_Repartidor(models.Model):
+class PagoRepartidor(models.Model):
     fecha_hora = models.DateTimeField(default=timezone.now)
     monto = models.FloatField()
     repartidor = models.ForeignKey(Repartidor)

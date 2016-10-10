@@ -1,5 +1,5 @@
 
-class Categoria():
+class Categoria:
     DELIVERY_COMIDA = 'COMIDA'
     DELIVERY_CHICO = 'CHICO'
     DELIVERY_MEDIANO = 'MEDIANO'

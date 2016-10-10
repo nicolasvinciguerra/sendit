@@ -1,4 +1,4 @@
-class Estado_Envio ():
+class EstadoEnvio:
     GENERADO = 'GENERADO'
     CANCELADO = 'CANCELADO'
     EN_ESPERA = 'ESPERA'
