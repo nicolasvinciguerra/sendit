@@ -1,6 +1,6 @@
 from django.db import models
 
-from sendit_app.models import Remitente
+from sendit_app.models.User import User
 from sendit_app.models.Direccion import Direccion
 from sendit_app.models.EstadoPaquete import EstadoPaquete
 from sendit_app.models.Envio import Envio
@@ -8,7 +8,7 @@ from sendit_app.models.Envio import Envio
 
 class Paquete(models.Model):
     fecha_hora_entrega = models.DateTimeField(null=True)
-    destinatario = models.ForeignKey(Remitente, null=True)
+    destinatario = models.ForeignKey(User, null=True)
     direccion = models.ForeignKey(Direccion)
     precio = models.FloatField(null=True)
     estado_choices = ((EstadoPaquete.GENERADO, 'Generado'), (EstadoPaquete.ENTREGADO, 'Entregado'),
