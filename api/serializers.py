@@ -1,5 +1,12 @@
 from rest_framework import serializers
 from sendit_app.models.User import *
+from sendit_app.models.Vehiculo import Vehiculo
+
+
+class VehiculoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehiculo
+        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -37,7 +44,9 @@ class PerfilRemitenteSerializer(serializers.ModelSerializer):
 
 class PerfilRepartidorSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=True)
+    vehiculo = VehiculoSerializer(required=True)
 
     class Meta:
         model = PerfilRepartidor
         fields = '__all__'
+        depth = 1 #me devuelve los objetos completos adentros de este objeto (ej. vehiculo)
