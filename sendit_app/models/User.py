@@ -12,6 +12,7 @@ class User(AbstractUser):
     es_repartidor = models.BooleanField(default=False)
     es_remitente = models.BooleanField(default=False)
     fecha_alta_user = models.DateTimeField(auto_now_add=True)
+    telefono = models.CharField(max_length=10, null=True)
 
     def get_perfil_remitente(self):
         remitente_profile = None
@@ -36,14 +37,12 @@ class PerfilRemitente(models.Model):
     sexo_choices = ((Sexo.HOMBRE, 'Hombre'), (Sexo.MUJER, 'Mujer'))
     sexo = models.CharField(max_length=1, choices=sexo_choices, null=True)
     dni = models.CharField(max_length=15, null=True)
-    empresa = models.BinaryField(default=0)
+    empresa = models.BooleanField(default=False)
     cuit = models.CharField(max_length=10, null=True)
     razon_social = models.CharField(max_length=30, null=True)
 
     def es_empresa(self):
-        if self.Empresa == 1:
-            return True
-        return False
+        return self.empresa
 
     def __str__(self):
         return self.user.username
@@ -56,8 +55,7 @@ class PerfilRepartidor(models.Model):
     sexo_choices = ((Sexo.HOMBRE, 'Hombre'), (Sexo.MUJER, 'Mujer'))
     sexo = models.CharField(max_length=1, choices=sexo_choices)
     dni = models.CharField(max_length=10)
-    telefono = models.CharField(max_length=10)
-    vehiculo = models.ForeignKey(Vehiculo)
+    vehiculo = models.ForeignKey(Vehiculo, null=True)
     categoria_choices = ((Categoria.DELIVERY_COMIDA, 'Delivery Comida'),
                          (Categoria.DELIVERY_CHICO, 'Delivery Paqueteria Pequeña y Documentos'),
                          (Categoria.DELIVERY_MEDIANO, 'Delivery Paqueteria Mediana'),
