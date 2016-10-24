@@ -10,4 +10,6 @@ from sendit_app.models.Plan import Plan
 from sendit_app.models.RastreoEnvio import RastreoEnvio
 from sendit_app.models.Sexo import Sexo
 from sendit_app.models.Vehiculo import Vehiculo
+from sendit_app.models.User import User, PerfilRepartidor, PerfilRemitente, create_auth_token
+
 

@@ -6,12 +6,15 @@ from sendit_app.models.Categoria import Categoria
 from sendit_app.models.EstadoRepartidor import EstadoRepartidor
 from sendit_app.models.Sexo import Sexo
 from sendit_app.models.Vehiculo import Vehiculo
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
+from django.conf import settings
 
 
 class User(AbstractUser):
     es_repartidor = models.BooleanField(default=False)
     es_remitente = models.BooleanField(default=False)
-    fecha_alta_user = models.DateTimeField(auto_now_add=True)
     telefono = models.CharField(max_length=10, null=True)
 
     def get_perfil_remitente(self):
@@ -54,8 +57,8 @@ class PerfilRepartidor(models.Model):
     fecha_nacimiento = models.DateField()
     sexo_choices = ((Sexo.HOMBRE, 'Hombre'), (Sexo.MUJER, 'Mujer'))
     sexo = models.CharField(max_length=1, choices=sexo_choices)
-    dni = models.CharField(max_length=10)
-    vehiculo = models.ForeignKey(Vehiculo, null=True)
+    dni = models.CharField(max_length=15)
+    vehiculo = models.ForeignKey(Vehiculo, null=True, unique=False)
     categoria_choices = ((Categoria.DELIVERY_COMIDA, 'Delivery Comida'),
                          (Categoria.DELIVERY_CHICO, 'Delivery Paqueteria Pequeña y Documentos'),
                          (Categoria.DELIVERY_MEDIANO, 'Delivery Paqueteria Mediana'),
@@ -71,3 +74,11 @@ class PerfilRepartidor(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+# This code is triggered whenever a new user has been created and saved to the database
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)

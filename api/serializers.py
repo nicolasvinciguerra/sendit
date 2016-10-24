@@ -1,4 +1,9 @@
+from django.contrib.auth import authenticate
+from django.core.validators import validate_email
+from rest_framework import exceptions
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
+
 from sendit_app.models.User import *
 from sendit_app.models.Vehiculo import Vehiculo
 
@@ -9,14 +14,20 @@ class VehiculoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'password', 'es_repartidor', 'es_remitente', 'telefono',)
 
 
-class PerfilRemitenteSerializer(serializers.ModelSerializer):
-    user = UserSerializer(required=True)
+class UserOutputSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'es_repartidor', 'es_remitente', 'telefono',)
+
+
+class PerfilRemitenteInputSerializer(serializers.ModelSerializer):
+    user = UserInputSerializer(required=True)
 
     class Meta:
         model = PerfilRemitente
@@ -35,7 +46,7 @@ class PerfilRemitenteSerializer(serializers.ModelSerializer):
         remitente = PerfilRemitente(
             user=user,
             fecha_nacimiento=validated_data['fecha_nacimiento'],
-            # deberia controlar que si no es empresa debe tener este campo y ser mayor de edad
+            # deberia controlar que si no es empresa debe tener este campo y ser mayor de edad..
             sexo=validated_data['sexo'],
             dni=validated_data['dni'],
             empresa=validated_data['empresa'],
@@ -46,8 +57,17 @@ class PerfilRemitenteSerializer(serializers.ModelSerializer):
         return remitente
 
 
-class PerfilRepartidorSerializer(serializers.ModelSerializer):
-    user = UserSerializer(required=True)
+class PerfilRemitenteOutputSerializer(serializers.ModelSerializer):
+    user = UserOutputSerializer(required=True)
+
+    class Meta:
+        model = PerfilRemitente
+        read_only_fields = ('user',)
+        fields = '__all__'
+
+
+class PerfilRepartidorInputSerializer(serializers.HyperlinkedModelSerializer):  # VER EL TEMA DEL serializers.HyperlinkedModelSerializer
+    user = UserInputSerializer(required=True)
     vehiculo = VehiculoSerializer(required=True)
 
     class Meta:
@@ -84,3 +104,43 @@ class PerfilRepartidorSerializer(serializers.ModelSerializer):
         )
         repartidor.save()
         return repartidor
+
+
+class PerfilRepartidorOutputSerializer(serializers.HyperlinkedModelSerializer):
+    user = UserOutputSerializer(required=True)
+    vehiculo = VehiculoSerializer(required=True)
+
+    class Meta:
+        model = PerfilRepartidor
+        fields = '__all__'
+
+class AuthCustomTokenSerializer(serializers.Serializer):
+    username = serializers.CharField(label=("Username"))
+    password = serializers.CharField(label=("Password"), style={'input_type': 'password'})
+    user_id = UserOutputSerializer(required=False)
+
+    class Meta:
+        model = Token
+        fields = '__all__'
+
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        password = attrs.get('password')
+
+        if username and password:
+            user = authenticate(username=username, password=password)
+
+            if user:
+                if not user.is_active:
+                    msg = ('User account is disabled.')
+                    raise serializers.ValidationError(msg)
+            else:
+                msg = ('Unable to log in with provided credentials.')
+                raise serializers.ValidationError(msg)
+        else:
+            msg = ('Must include "username" and "password".')
+            raise serializers.ValidationError(msg)
+
+        attrs['user'] = user
+        return attrs
