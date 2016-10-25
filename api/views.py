@@ -4,8 +4,6 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from sendit_app.models import User
-
 
 class ObtainAuthTokenCustom(APIView):
     throttle_classes = ()

@@ -1,4 +1,4 @@
-from api.viewSets import UserViewSet, RepartidorViewSet, RemitenteViewSet
+from api.viewSets import UserViewSet, RepartidorViewSet, RemitenteViewSet, EnviosUserViewSet
 from rest_framework.routers import DefaultRouter
 from django.conf.urls import url
 
@@ -8,6 +8,7 @@ router = DefaultRouter()
 router.register(r'users/remitente', RemitenteViewSet)
 router.register(r'users/repartidor', RepartidorViewSet)
 router.register(r'users', UserViewSet)
+router.register(r'envios', EnviosUserViewSet)
 
 
 urlpatterns = [

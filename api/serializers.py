@@ -4,6 +4,7 @@ from rest_framework import exceptions
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
+from sendit_app.models import Envio
 from sendit_app.models.User import *
 from sendit_app.models.Vehiculo import Vehiculo
 
@@ -12,7 +13,6 @@ class VehiculoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehiculo
         fields = '__all__'
-
 
 class UserInputSerializer(serializers.ModelSerializer):
     class Meta:
@@ -144,3 +144,14 @@ class AuthCustomTokenSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class EnvioSerializer(serializers.ModelSerializer):
+    repartidor = PerfilRepartidorOutputSerializer
+    remitente = PerfilRemitenteOutputSerializer
+
+    class Meta:
+        model = Envio
+        exclude = ('fecha_hora_generado', 'fecha_hora_entregado', 'estado', 'repartidor', 'remitente', 'codigo_recepcion', 'nro_tracking', 'plan')
+
+
