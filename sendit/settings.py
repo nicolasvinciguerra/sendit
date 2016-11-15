@@ -130,3 +130,5 @@ STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'sendit_app.User'
 
+APPEND_SLASH=True
+

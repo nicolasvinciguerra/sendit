@@ -17,7 +17,7 @@ class ObtainAuthTokenCustom(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key, 'username': user.username, 'es_repartidor': user.es_repartidor, 'es_remitente':user.es_remitente})
+        return Response({'token': token.key, 'username': user.username, 'nombre': user.first_name, 'es_remitente':user.es_remitente})
 
 
 obtain_auth_token = ObtainAuthTokenCustom.as_view()

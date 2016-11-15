@@ -9,11 +9,13 @@ from rest_framework.decorators import api_view, list_route, detail_route
 from rest_framework.generics import get_object_or_404, CreateAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from sendit_app.models import Envio
+from sendit_app.models import Envio, Vehiculo, EstadoEnvio
 from sendit_app.models.User import User, PerfilRemitente, PerfilRepartidor
 from api.serializers import PerfilRemitenteInputSerializer, UserInputSerializer, PerfilRepartidorInputSerializer, \
-    PerfilRemitenteOutputSerializer, UserOutputSerializer, PerfilRepartidorOutputSerializer, EnvioSerializer
+    PerfilRemitenteOutputSerializer, UserOutputSerializer, PerfilRepartidorOutputSerializer, EnvioSerializer, VehiculoSerializer
+from api.Services import EnvioService
 
 
 class UserViewSet(viewsets.GenericViewSet):
@@ -54,13 +56,12 @@ class RemitenteViewSet(viewsets.ModelViewSet):
     @list_route(methods=['post'], permission_classes=[AllowAny])
     def register(self, request):
         model_serializer = PerfilRemitenteInputSerializer(data=request.data)
-        model_serializer.is_valid(raise_exception=True)
+        model_serializer.is_vald(raisie_exception=True)
         model_serializer.save()
 
         return Response(model_serializer.data)
 
-    @list_route(methods=['get'], permission_classes=[IsAuthenticated],
-                authentication_classes=(SessionAuthentication, TokenAuthentication,))
+    @list_route(methods=['get'])
     def me(self, request, *args, **kwargs):
         obj = get_object_or_404(RemitenteViewSet.queryset, user=request.user)
         serializer = PerfilRemitenteOutputSerializer(obj)
@@ -73,9 +74,9 @@ class RemitenteViewSet(viewsets.ModelViewSet):
         return super(RemitenteViewSet, self).list(request)
 
     def update(self, request, pk=None):
-        user = User.objects.filter(id=pk).first()
-        if not user or request.user != user:
-            return HttpResponseForbidden()
+       # user = User.objects.filter(id=pk).first()
+       # if not user or request.user != user:
+       #     return HttpResponseForbidden()
         return super(RemitenteViewSet, self).update(request, pk=user.id)
 
     @detail_route(methods=['get'], permission_classes=[IsAuthenticated],
@@ -106,7 +107,7 @@ class EnviosUserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = (SessionAuthentication, TokenAuthentication,)
     queryset = Envio.objects.all()
-
+'''
     def list(self, request, *args, **kwargs):
         user = request.user
         if not user or not user.is_superuser:
@@ -119,6 +120,45 @@ class EnviosUserViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+'''
 
 
+class TestUpdateVehiculo(viewsets.ModelViewSet):
+    queryset = Vehiculo.objects.all()
+    serializer_class = VehiculoSerializer#(partial=True)
+
+    def update(self, request, *args, **kwargs):
+        vehiculo_serializer = VehiculoSerializer(
+            instance=self.get_object(),
+            data=self.request.data,
+            partial=True
+        )
+        if vehiculo_serializer.is_valid():
+            vehiculo_serializer.save()
+        return Response(vehiculo_serializer.data)
+
+
+class EnviosViewSet(viewsets.ModelViewSet):
+    queryset = Envio.objects.all()
+    serializer_class = EnvioSerializer
+
+    @detail_route(methods=['get'])
+    def reintentar_busqueda(self, request, pk):
+        EnvioService.buscar_notificar_repartidor(pk)
+        return Response({'status': 'buscando y notificando repartidores'})
+
+    def perform_create(self, serializer):
+        serializer.create(user=self.request.user,current_plan=1)
+
+
+class EnviosRepartidorView(generics.ListAPIView):
+    serializer_class = EnvioSerializer
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the envios
+        for the currently authenticated repartidor.
+        """
+        repartidor = get_object_or_404(user=self.request.user)
+        return Envio.objects.filter(estado=EstadoEnvio.GENERADO, categoria=repartidor.categoria)
 

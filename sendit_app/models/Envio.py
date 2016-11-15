@@ -34,3 +34,5 @@ class Envio(models.Model):
     plan = models.ForeignKey(Plan, null=True)
     direccion_origen = models.ForeignKey(Direccion, related_name='direccion_origen')
     direccion_destino = models.ForeignKey(Direccion, related_name='direccion_destino')
+    precio = models.FloatField()
+    pagado = models.BooleanField(default=False)
