@@ -32,7 +32,7 @@ class Envio(models.Model):
     codigo_recepcion = models.CharField(max_length=10, null=True)  # cuando haces un envio seguro, este codigo debe introducir el destinatario para confirmar recepcion
     nro_tracking = models.CharField(max_length=10, null=True)  # numero para poder rastrear el envio
     plan = models.ForeignKey(Plan, null=True)
-    direccion_origen = models.ForeignKey(Direccion, related_name='direccion_origen')
-    direccion_destino = models.ForeignKey(Direccion, related_name='direccion_destino')
+    direccion_origen = models.CharField(max_length=50)#ForeignKey(Direccion, related_name='direccion_origen')
+    direccion_destino =models.CharField(max_length=50)#ForeignKey(Direccion, related_name='direccion_destino')
     precio = models.FloatField()
     pagado = models.BooleanField(default=False)

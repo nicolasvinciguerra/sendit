@@ -163,33 +163,28 @@ class DireccionSerializer(serializers.ModelSerializer):
 
 
 class EnvioSerializer(serializers.ModelSerializer):
-    direccion_origen = DireccionSerializer(required=True)
-    direccion_destino = DireccionSerializer(required=True)
 
     class Meta:
         model = Envio
-        fields = 'destinatario', 'telefono_destinatario', 'email_destinatario','categoria', 'requiere_confirmacion', 'direccion_origen', 'direccion_destino'
+        fields = 'destinatario', 'telefono_destinatario', 'email_destinatario', 'categoria', 'requiere_confirmacion', 'direccion_origen', 'direccion_destino'
 
-    def create(self, validated_data, user, current_plan):
-        dir_origen_data = validated_data.pop('direccion_origen')
-        dir_destino_data = validated_data.pop('direccion_destino')
-        dir_origen = DireccionSerializer(dir_destino_data).save()
-        dir_destino = DireccionSerializer(dir_origen_data).save()
+    def create(self, validated_data, user=2, current_plan=1):
 
         envio = Envio(
             estado=EstadoEnvio.GENERADO,
-            remitente= PerfilRemitente.objects.get(user=user),
-            destinatario=PerfilRemitente.objects.get(user__username=validated_data['destinatario']),
+            remitente=PerfilRemitente.objects.get(user=user),
+            #destinatario=PerfilRemitente.objects.get(user=User.objects.get(username=validated_data['destinatario'])),
             email_destinatario=validated_data['email_destinatario'],
             telefono_destinatario=validated_data['telefono_destinatario'],
             categoria=validated_data['categoria'],
             requiere_confirmacion=validated_data['requiere_confirmacion'],
-            direccion_destino_id=dir_destino.id,
-            direccion_origen_id=dir_origen.id,
+            direccion_destino=validated_data['direccion_destino'],
+            direccion_origen=validated_data['direccion_origen'],
             plan=Plan.objects.get(id=current_plan),
             precio=53.5
         )
-        envio.nro_tracking=envio.id
+
+        envio.nro_tracking = envio.id
         if envio.requiere_confirmacion:
             envio.codigo_recepcion = id_generator()
         envio.save()

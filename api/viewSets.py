@@ -148,7 +148,10 @@ class EnviosViewSet(viewsets.ModelViewSet):
         return Response({'status': 'buscando y notificando repartidores'})
 
     def perform_create(self, serializer):
-        serializer.create(user=self.request.user,current_plan=1)
+        serializer.save()
+
+
+    #AGREGAR GET LIST ENVIOS PARA REPAETIDOR
 
 
 class EnviosRepartidorView(generics.ListAPIView):
