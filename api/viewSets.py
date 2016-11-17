@@ -49,42 +49,22 @@ class UserViewSet(viewsets.GenericViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-class RemitenteViewSet(viewsets.ModelViewSet):
+class RemitenteViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet,
+                        mixins.UpdateModelMixin, mixins.RetrieveModelMixin):
     queryset = PerfilRemitente.objects.all()
     serializer_class = PerfilRemitenteInputSerializer
 
-    @list_route(methods=['post'], permission_classes=[AllowAny])
+    '''@list_route(methods=['post'], permission_classes=[AllowAny]) #NO FUNCIONANDO, PARA REGISTRO /users/reartidor metodo:post
     def register(self, request):
-        model_serializer = PerfilRemitenteInputSerializer(data=request.data)
-        model_serializer.is_vald(raisie_exception=True)
-        model_serializer.save()
+        return Response({'id_user': RemitenteViewSet.create(self, request)})
+    '''
 
-        return Response(model_serializer.data)
-
-    @list_route(methods=['get'])
+    @list_route(methods=['get', 'put'], permission_classes=[IsAuthenticated],
+                authentication_classes=(SessionAuthentication, TokenAuthentication,))
     def me(self, request, *args, **kwargs):
-        obj = get_object_or_404(RemitenteViewSet.queryset, user=request.user)
-        serializer = PerfilRemitenteOutputSerializer(obj)
-        return Response(serializer.data)
-
-    def list(self, request):
-        user = request.user
-        if not user or not user.is_superuser:
-            return HttpResponseForbidden()
-        return super(RemitenteViewSet, self).list(request)
-
-    def update(self, request, pk=None):
-       # user = User.objects.filter(id=pk).first()
-       # if not user or request.user != user:
-       #     return HttpResponseForbidden()
-        return super(RemitenteViewSet, self).update(request, pk=user.id)
-
-    @detail_route(methods=['get'], permission_classes=[IsAuthenticated],
-                  authentication_classes=(SessionAuthentication, TokenAuthentication,))
-    def envios(self, request):
-        serializer = EnvioSerializer(self.request.user.envio_remitente.all())
-        return Response(serializer.data)
-
+        self.serializer_class = PerfilRemitenteOutputSerializer
+        view = RemitenteViewSet.as_view({'get': 'retrieve', 'put': 'update'})
+        return view(request, pk=request.user.id)
 
 
 class RepartidorViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet,
@@ -101,31 +81,29 @@ class RepartidorViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet,
         if self.action == 'update':
             return PerfilRepartidorInputSerializer
 
+    @detail_route(methods=['put'], permission_classes=[IsAuthenticated], authentication_classes=(SessionAuthentication, TokenAuthentication,))
+    def actualizar_ubicacion(self, request, pk):
+        repartidor_serializer = PerfilRepartidorInputSerializer(
+            instance=PerfilRepartidor.objects.get(user=request.user),
+            data=self.request.data,
+            partial=True
+        )
+        if repartidor_serializer.is_valid():
+            repartidor_serializer.save()
+        return Response({'status':'actualizado'})
 
-class EnviosUserViewSet(viewsets.ModelViewSet):
-    serializer_class = EnvioSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = (SessionAuthentication, TokenAuthentication,)
-    queryset = Envio.objects.all()
-'''
-    def list(self, request, *args, **kwargs):
-        user = request.user
-        if not user or not user.is_superuser:
-            return HttpResponseForbidden()
-        return super(EnviosUserViewSet, self).list(request)
+    @list_route(methods=['get', 'put'], permission_classes=[IsAuthenticated],
+                authentication_classes=(SessionAuthentication, TokenAuthentication,))
+    def me(self, request, *args, **kwargs):
+        self.serializer_class = PerfilRepartidorOutputSerializer
+        view = RepartidorViewSet.as_view({'get': 'retrieve', 'put': 'update'})
+        return view(request, pk=request.user.id)
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-'''
 
 
 class TestUpdateVehiculo(viewsets.ModelViewSet):
     queryset = Vehiculo.objects.all()
-    serializer_class = VehiculoSerializer#(partial=True)
+    serializer_class = VehiculoSerializer
 
     def update(self, request, *args, **kwargs):
         vehiculo_serializer = VehiculoSerializer(
@@ -139,29 +117,43 @@ class TestUpdateVehiculo(viewsets.ModelViewSet):
 
 
 class EnviosViewSet(viewsets.ModelViewSet):
+    authentication_classes = (SessionAuthentication, TokenAuthentication)
+    permission_classes = (IsAuthenticated,)
+
     queryset = Envio.objects.all()
     serializer_class = EnvioSerializer
+
+    def create(self, request, *args, **kwargs):
+        return Response({'envio_id': EnvioService.crear_envio(self, datos=request.data, user=request.user, plan_id=1)})
 
     @detail_route(methods=['get'])
     def reintentar_busqueda(self, request, pk):
         EnvioService.buscar_notificar_repartidor(pk)
         return Response({'status': 'buscando y notificando repartidores'})
 
-    def perform_create(self, serializer):
-        serializer.save()
+    @detail_route(methods=['get'])
+    def cancelar_busqueda(self, request, pk):
+        EnvioService.cancelar_envio(pk)
+        return  Response({'status':'envio cancelado'})
+
+    @detail_route(methods=['get'])
+    def get_repartidor(self, request, pk):
+        return EnvioService.repartidor_envio(pk)
 
 
-    #AGREGAR GET LIST ENVIOS PARA REPAETIDOR
-
-
-class EnviosRepartidorView(generics.ListAPIView):
-    serializer_class = EnvioSerializer
+    @detail_route(methods=['get'])
+    def tracking_envio(self, request, pk):
+        tracking = EnvioService.rastrear_envio(pk)
+        return {'lat':tracking.latitud, 'lon':tracking.longitud}
 
     def get_queryset(self):
         """
         This view should return a list of all the envios
-        for the currently authenticated repartidor.
+        for the currently authenticated user.
         """
-        repartidor = get_object_or_404(user=self.request.user)
-        return Envio.objects.filter(estado=EstadoEnvio.GENERADO, categoria=repartidor.categoria)
-
+        if self.request.user.es_remitente:
+            remitente = PerfilRemitente.objects.get(user=self.request.user)
+            return Envio.objects.filter(remitente=remitente)
+        else:
+            repartidor = PerfilRepartidor.objects.get(user=self.request.user)
+            return Envio.objects.filter(estado=EstadoEnvio.GENERADO, categoria=repartidor.categoria)

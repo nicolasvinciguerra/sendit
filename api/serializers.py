@@ -62,7 +62,7 @@ class PerfilRemitenteInputSerializer(serializers.ModelSerializer):
             razon_social=validated_data['razon_social']
         )
         remitente.save()
-        return remitente.id
+        return remitente
 
 
 class PerfilRemitenteOutputSerializer(serializers.ModelSerializer):
@@ -74,7 +74,7 @@ class PerfilRemitenteOutputSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PerfilRepartidorInputSerializer(serializers.HyperlinkedModelSerializer):  # VER EL TEMA DEL serializers.HyperlinkedModelSerializer
+class PerfilRepartidorInputSerializer(serializers.ModelSerializer):
     user = UserInputSerializer(required=True)
     vehiculo = VehiculoSerializer(required=True)
 
@@ -113,8 +113,7 @@ class PerfilRepartidorInputSerializer(serializers.HyperlinkedModelSerializer):  
         repartidor.save()
         return repartidor
 
-
-class PerfilRepartidorOutputSerializer(serializers.HyperlinkedModelSerializer):
+class PerfilRepartidorOutputSerializer(serializers.ModelSerializer):
     user = UserOutputSerializer(required=True)
     vehiculo = VehiculoSerializer(required=True)
 
@@ -166,7 +165,7 @@ class EnvioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Envio
-        fields = 'destinatario', 'telefono_destinatario', 'email_destinatario', 'categoria', 'requiere_confirmacion', 'direccion_origen', 'direccion_destino'
+        fields = 'id','destinatario', 'telefono_destinatario', 'email_destinatario', 'categoria', 'requiere_confirmacion', 'direccion_origen', 'direccion_destino'
 
     def create(self, validated_data, user=2, current_plan=1):
 
