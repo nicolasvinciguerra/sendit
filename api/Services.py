@@ -37,15 +37,16 @@ class EnvioService:
             envio = Envio.objects.get(id=envio_id)
             envio.estado = EstadoEnvio.CANCELADO
             envio.save()
+            print("ENVIO CANCELADO:" + envio.estado)
 
     def repartidor_envio(self,envio_id):
         envio = Envio.objects.get(id=envio_id)
         if envio.repartidor:
             repartidor = PerfilRepartidor.objects.get(user=envio.repartidor)
-            return {'status':'repartidor asiganado', 'repartidor_name':repartidor.user.first_name, 'repartidor_last_name': repartidor.user.last_name}
-        return {'status':'repartidor no asignado'}
+            return {'code':'1', 'status':'repartidor asiganado', 'repartidor_name':repartidor.user.first_name, 'repartidor_last_name': repartidor.user.last_name}
+        return {'code':'0', 'status':'repartidor no asignado'}
 
     def rastrear_envio(self,envio_id):
-        return RastreoEnvio.objects.filter(envio_id=envio_id).last('fecha_hora')
+        return RastreoEnvio.objects.filter(Envio_id=envio_id).last()
 
 

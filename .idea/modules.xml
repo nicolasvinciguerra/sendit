@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$USER_HOME$/Desktop/Proyecto/.idea/Proyecto.iml" filepath="$USER_HOME$/Desktop/Proyecto/.idea/Proyecto.iml" />
       <module fileurl="file://$PROJECT_DIR$/../django-staticsite/.idea/django-staticsite.iml" filepath="$PROJECT_DIR$/../django-staticsite/.idea/django-staticsite.iml" />
       <module fileurl="file://$PROJECT_DIR$/../django_rest_blog/.idea/django_rest_blog.iml" filepath="$PROJECT_DIR$/../django_rest_blog/.idea/django_rest_blog.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/sendit.iml" filepath="$PROJECT_DIR$/.idea/sendit.iml" />

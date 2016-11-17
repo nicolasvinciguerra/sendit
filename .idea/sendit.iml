@@ -19,6 +19,7 @@
     <orderEntry type="module" module-name="tutorial" />
     <orderEntry type="module" module-name="django-staticsite" />
     <orderEntry type="module" module-name="django_rest_blog" />
+    <orderEntry type="module" module-name="Proyecto" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
