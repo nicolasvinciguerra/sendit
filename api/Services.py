@@ -6,8 +6,8 @@ from sendit_app.models import RastreoEnvio
 
 
 class EnvioService:
-    def buscar_notificar_repartidor(self, id_envio): #notificar al repartidor de un envio
-        envio= Envio.objects.get(id=id_envio)
+    def buscar_notificar_repartidor(self, envio_id): #notificar al repartidor de un envio
+        envio= Envio.objects.get(id=envio_id)
         if envio.estado == EstadoEnvio.GENERADO:
             repartidores = PerfilRepartidor.objects.filter(estado=EstadoRepartidor.ACTIVO, categoria=envio.categoria,)
             #NOTIFICAR A repartidores del envio
@@ -27,7 +27,6 @@ class EnvioService:
             plan=Plan.objects.get(id=plan_id),
             precio=53.5
         )
-
         envio.nro_tracking = envio.id
         if envio.requiere_confirmacion:
             envio.codigo_recepcion = id_generator()

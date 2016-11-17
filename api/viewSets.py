@@ -128,22 +128,22 @@ class EnviosViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def reintentar_busqueda(self, request, pk):
-        EnvioService.buscar_notificar_repartidor(pk)
+        EnvioService.buscar_notificar_repartidor(self,envio_id=pk)
         return Response({'status': 'buscando y notificando repartidores'})
 
     @detail_route(methods=['get'])
     def cancelar_busqueda(self, request, pk):
-        EnvioService.cancelar_envio(pk)
-        return  Response({'status':'envio cancelado'})
+        EnvioService.cancelar_envio(self,envio_id=pk)
+        return Response({'status':'envio cancelado'})
 
     @detail_route(methods=['get'])
     def get_repartidor(self, request, pk):
-        return EnvioService.repartidor_envio(pk)
+        return EnvioService.repartidor_envio(self,envio_id=pk)
 
 
     @detail_route(methods=['get'])
     def tracking_envio(self, request, pk):
-        tracking = EnvioService.rastrear_envio(pk)
+        tracking = EnvioService.rastrear_envio(self,envio_id=pk)
         return {'lat':tracking.latitud, 'lon':tracking.longitud}
 
     def get_queryset(self):
