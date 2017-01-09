@@ -1,10 +1,10 @@
 from django.utils import timezone
 from django.db import models
-from sendit_app.models import Repartidor
+from sendit_app.models.User import User
 
 
-class Pago_Repartidor(models.Model):
+class PagoRepartidor(models.Model):
     fecha_hora = models.DateTimeField(default=timezone.now)
     monto = models.FloatField()
-    repartidor = models.ForeignKey(Repartidor)
+    repartidor = models.ForeignKey(User)
     fecha_hora_Pagado = models.DateTimeField(null=True)

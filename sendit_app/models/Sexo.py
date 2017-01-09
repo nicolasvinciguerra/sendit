@@ -1,3 +1,3 @@
-class Sexo():
-    HOMBRE = 0
-    MUJER = 1
+class Sexo:
+    HOMBRE = 'H'
+    MUJER = 'M'

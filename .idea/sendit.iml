@@ -13,8 +13,13 @@
   </component>
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 3.4.4 (C:\Python34\python.exe)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.4.4 virtualenv at C:\Users\Nicolas\PycharmProjects\sendit\venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="test_rest" />
+    <orderEntry type="module" module-name="tutorial" />
+    <orderEntry type="module" module-name="django-staticsite" />
+    <orderEntry type="module" module-name="django_rest_blog" />
+    <orderEntry type="module" module-name="Proyecto" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
