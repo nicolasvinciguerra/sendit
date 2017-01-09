@@ -1,4 +1,4 @@
-class Estado_Paquete ():
+class EstadoPaquete:
     GENERADO = 'GENERADO'
     EN_VIAJE = 'VIAJE'
     NO_ENTREGADO = 'NO_ENTREGADO'
